@@ -9,6 +9,8 @@ Der Würfel ist ein eigenständiger **Icecast-Source-Encoder** für AzuraCast.
 Er verbindet sich direkt mit Liquidsoap auf dem DJ-Port, den AzuraCast dir für
 deinen Streamer-Account zeigt.
 
+Projektseite mit Gehäuse-Renderings: <https://momokli.github.io/zukka_wuerfel/>
+
 ```
 Mischpult Master Out
         │  Line/RCA
