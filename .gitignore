@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.DS_Store
+config.toml
+config.dev.toml
+streamer.env
+.pytest_cache/
