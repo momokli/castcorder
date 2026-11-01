@@ -1,6 +1,6 @@
-# radio zukka Würfel — Beispielkonfiguration
+# Castcorder — Beispielkonfiguration
 #
-# Auf dem Pi nach /etc/zukka-wuerfel/config.toml kopieren (macht das
+# Auf dem Pi nach /etc/castcorder/config.toml kopieren (macht das
 # Installationsskript automatisch, falls noch keine Datei existiert).
 
 [input]
@@ -22,12 +22,12 @@ mount = "/"
 # Streamer-/DJ-Benutzername aus AzuraCast (nicht der Admin-Account).
 username = "momo"
 # Passwort steht NICHT hier, sondern in dieser Umgebungsvariable.
-password_env = "ZUKKA_STREAMER_PASSWORD"
+password_env = "CASTCORDER_STREAMER_PASSWORD"
 # Quelle läuft normalerweise unverschlüsselt auf dem DJ-Port; TLS nur wenn
 # dein AzuraCast-Setup das explizit anbietet.
 tls = false
 name = "radio zukka live"
-description = "Live from the Zukka Wuerfel"
+description = "Live from the Castcorder"
 genre = ""
 url = "https://radio.zukkafabrik.de"
 public = false
@@ -38,11 +38,11 @@ bitrate = 192
 extra_args = []
 
 [leds]
-# Pegelanzeige auf den Würfel-Pips (aus dem ffmpeg-Eingang gemessen).
+# Pegelanzeige auf der VU-Leiter (aus dem ffmpeg-Eingang gemessen).
 vu = true
 vu_min_db = -48
 vu_max_db = 0
-# Wie schnell die Pips nach einem Peak wieder abfallen (Pips pro Sekunde).
+# Wie schnell die Leiter nach einem Peak wieder abfällt (Segmente pro Sekunde).
 vu_decay_per_second = 8
 
 [gpio]
@@ -53,13 +53,11 @@ button_led_pin = 27
 button_active_high = false
 button_bounce_time = 0.05
 
-# Sieben LEDs in Würfel-Anordnung:
-#   tl   tr
-#     ml c mr
-#   bl   br
-# Reihenfolge: tl, tr, ml, c, mr, bl, br
-pips = [5, 6, 16, 22, 23, 24, 25]
-# Keine Würfel-LEDs? Dann: pips = []
+# Sieben LEDs als VU-Leiter, von links (leise) nach rechts (laut):
+#   vu1 vu2 vu3 vu4 vu5 vu6 vu7
+# Reihenfolge: vu1, vu2, vu3, vu4, vu5, vu6, vu7
+vu_leds = [5, 6, 16, 22, 23, 24, 25]
+# Keine VU-LEDs? Dann: vu_leds = []
 
 [behavior]
 connect_timeout_seconds = 20

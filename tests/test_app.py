@@ -3,8 +3,8 @@ from __future__ import annotations
 import logging
 import unittest
 
-from zukka_wuerfel.app import RadioApp
-from zukka_wuerfel.config import (
+from castcorder.app import RadioApp
+from castcorder.config import (
     BehaviorConfig,
     Config,
     GpioConfig,
@@ -12,8 +12,8 @@ from zukka_wuerfel.config import (
     LedsConfig,
     StreamConfig,
 )
-from zukka_wuerfel.lights import ALL_PIPS, PIP_MASKS
-from zukka_wuerfel.state import State
+from castcorder.lights import ALL_SEGMENTS, LEVEL_MASKS, LIVE_NO_LEVEL
+from castcorder.state import State
 
 
 class FakeClock:
@@ -54,7 +54,7 @@ def make_config(*, vu: bool = True) -> Config:
     return Config(
         input=InputConfig(device="test"),
         stream=StreamConfig(username="momo"),
-        gpio=GpioConfig(pips=(5, 6, 16, 22, 23, 24, 25)),
+        gpio=GpioConfig(vu_leds=(5, 6, 16, 22, 23, 24, 25)),
         leds=LedsConfig(
             vu=vu,
             vu_min_db=-48,
@@ -76,7 +76,7 @@ class RadioAppTests(unittest.TestCase):
         self.encoder = FakeEncoder()
         self.lights = FakeLights()
         self.config = make_config()
-        self.log = logging.getLogger("test.zukka")
+        self.log = logging.getLogger("test.castcorder")
         self.log.addHandler(logging.NullHandler())
         self.app = RadioApp(
             self.config,
@@ -216,34 +216,34 @@ class RadioAppTests(unittest.TestCase):
         self.app.tick()
         self.assertEqual(self.app.state, State.ERROR)
 
-    def test_audio_level_maps_to_dice_pips(self) -> None:
+    def test_audio_level_maps_to_vu_ladder(self) -> None:
         self.make_live()
         self.app.on_audio_level(-24.0)
         self.app.tick()
-        self.assertEqual(self.lights.frames[-1][0], PIP_MASKS[4])
+        self.assertEqual(self.lights.frames[-1][0], LEVEL_MASKS[4])
 
     def test_audio_level_peak_is_held(self) -> None:
         self.make_live()
         self.app.on_audio_level(0.0)
         self.app.tick()
-        self.assertEqual(self.lights.frames[-1][0], ALL_PIPS)
+        self.assertEqual(self.lights.frames[-1][0], ALL_SEGMENTS)
 
         self.app.on_audio_level(-30.0)
         self.app.tick()
         # Der alte Peak wird noch gehalten, nicht sofort abgesenkt.
-        self.assertEqual(self.lights.frames[-1][0], ALL_PIPS)
+        self.assertEqual(self.lights.frames[-1][0], ALL_SEGMENTS)
 
     def test_audio_level_decays(self) -> None:
         self.make_live()
         self.app.on_audio_level(0.0)
         self.app.tick()
-        self.assertEqual(self.lights.frames[-1][0], ALL_PIPS)
+        self.assertEqual(self.lights.frames[-1][0], ALL_SEGMENTS)
 
         self.clock.advance(1.0)
         self.app.tick()
-        self.assertEqual(self.lights.frames[-1][0], PIP_MASKS[0])
+        self.assertEqual(self.lights.frames[-1][0], LEVEL_MASKS[0])
 
-    def test_vu_disabled_shows_six(self) -> None:
+    def test_vu_disabled_shows_mid_scale(self) -> None:
         self.config = make_config(vu=False)
         self.app = RadioApp(
             self.config,
@@ -255,7 +255,7 @@ class RadioAppTests(unittest.TestCase):
         self.make_live()
         self.app.on_audio_level(0.0)
         self.app.tick()
-        self.assertEqual(self.lights.frames[-1][0], PIP_MASKS[6])
+        self.assertEqual(self.lights.frames[-1][0], LEVEL_MASKS[LIVE_NO_LEVEL])
 
     def test_audio_level_ignored_when_idle(self) -> None:
         self.app.on_audio_level(0.0)

@@ -1,7 +1,7 @@
-# Hardware: radio zukka Live-Würfel
+# Hardware: Castcorder
 
-Dieser Würfel nimmt das **Master-Signal deines Mischpults** auf und schickt es
-als Live-Stream an AzuraCast. Dafür braucht er einen **Audio-Eingang
+Dieses Castcorder nimmt das **Master-Signal deines Mischpults** auf und schickt
+es als Live-Stream an AzuraCast. Dafür braucht er einen **Audio-Eingang
 (ADC/Line-In)**.
 
 ## Eingang: ADC/Line-In
@@ -40,7 +40,7 @@ Reserven für USB-Audio, WLAN und Encoding gleichzeitig.
 | 1        | Taster 16 mm, momentary (NO)       | beleuchtet, „LIVE“-Beschriftung                                 |
 | 1        | Widerstand 220–330 Ω               | für 3,3-V-Taster-LED                                            |
 | –        | Jumperkabel / Litze / Lochraster   | sauber verdrillt                                                |
-| 1        | Gehäuse                            | Würfel ~100–120 mm, 3D-Druck oder Holz                          |
+| 1        | Gehäuse                            | Tapedeck ~220 × 140 × 60 mm, 3D-Druck oder Holz                 |
 | 1        | 5-V-Netzteil                       | offiziell/hochwertig; USB-Interface zieht mit                   |
 
 **Nicht nötig:** Verstärker, Lautsprecher. Du hörst über dein Mischpult /
@@ -59,10 +59,10 @@ Viele günstige USB-Interfaces (UCA202/222) erwarten **−10 dBV**. Ein
 - Master-out am Mischpult etwas runterregeln,
 - DI-Box / Line-Attenuator (z. B. −20 dB) dazwischen,
 - Interface mit Gain-/Line-Eingängen verwenden (z. B. Focusrite Scarlett),
-- den Würfel-VU beobachten: bei 0 dBFS leuchten alle 7 Pips = Clipping.
+- den Castcorder-VU beobachten: bei 0 dBFS leuchten alle 7 Segmente = Clipping.
 
 Ziel: laute Passagen sollten etwa **−6 dBFS** erreichen, nicht dauerhaft
-alle 7 Pips (Clipping). Bei Brummen/Störgeräuschen helfen ein USB-Interface mit
+alle 7 Segmente (Clipping). Bei Brummen/Störgeräuschen helfen ein USB-Interface mit
 eigener Stromversorgung, ein Ground-Loop-Isolator oder ein sauberer gemeinsamer
 Massepunkt.
 
@@ -123,17 +123,17 @@ Ein Line-Out am HAT ist optional zum Mithören; für den Stream nicht nötig.
 Alle Nummern sind **BCM-Nummern**, nicht die physischen Header-Pins. Die
 physischen Pins stehen in Klammern.
 
-| Funktion                | BCM    | Physischer Pin | Ziel                      |
-| ----------------------- | ------ | -------------- | ------------------------- |
-| LIVE-Taster             | GPIO17 | 11             | gegen GND (Pin 9/14/20/…) |
-| Taster-LED              | GPIO27 | 13             | 220 Ω → LED → GND         |
-| Pip oben links (`tl`)   | GPIO5  | 29             | 220 Ω → LED → GND         |
-| Pip oben rechts (`tr`)  | GPIO6  | 31             | 220 Ω → LED → GND         |
-| Pip mitte links (`ml`)  | GPIO16 | 36             | 220 Ω → LED → GND         |
-| Pip mitte (`c`)         | GPIO22 | 15             | 220 Ω → LED → GND         |
-| Pip mitte rechts (`mr`) | GPIO23 | 16             | 220 Ω → LED → GND         |
-| Pip unten links (`bl`)  | GPIO24 | 18             | 220 Ω → LED → GND         |
-| Pip unten rechts (`br`) | GPIO25 | 22             | 220 Ω → LED → GND         |
+| Funktion            | BCM    | Physischer Pin | Ziel                      |
+| ------------------- | ------ | -------------- | ------------------------- |
+| LIVE-Taster         | GPIO17 | 11             | gegen GND (Pin 9/14/20/…) |
+| Taster-LED          | GPIO27 | 13             | 220 Ω → LED → GND         |
+| VU 1 links (`vu1`)  | GPIO5  | 29             | 220 Ω → LED → GND         |
+| VU 2 (`vu2`)        | GPIO6  | 31             | 220 Ω → LED → GND         |
+| VU 3 (`vu3`)        | GPIO16 | 36             | 220 Ω → LED → GND         |
+| VU 4 (`vu4`)        | GPIO22 | 15             | 220 Ω → LED → GND         |
+| VU 5 (`vu5`)        | GPIO23 | 16             | 220 Ω → LED → GND         |
+| VU 6 (`vu6`)        | GPIO24 | 18             | 220 Ω → LED → GND         |
+| VU 7 rechts (`vu7`) | GPIO25 | 22             | 220 Ω → LED → GND         |
 
 **Nicht für LEDs verwenden:** GPIO18/19/20/21 gehören zum I2S-Interface und
 sind bei einem ADC-HAT belegt. GPIO12/13 wären bei aktivem Onboard-Audio
@@ -152,7 +152,7 @@ GPIO ──[ 220–330 Ω ]──|>|── GND
                        LED
 ```
 
-Bei 3,3 V und 220 Ω fließen ca. 5–7 mA pro LED. Sieben Pips plus Taster-LED
+Bei 3,3 V und 220 Ω fließen ca. 5–7 mA pro LED. Sieben VU-Segmente plus Taster-LED
 bleiben deutlich unter dem, was der Pi insgesamt liefern kann; pro GPIO-Pin
 trotzdem nicht mehr als ~10 mA ziehen.
 
@@ -206,33 +206,42 @@ nicht geöffnet.
 
 ## Gehäuse
 
-Ein Würfel mit ca. 110–120 mm Kantenlänge bietet Platz für Pi, USB-Interface
-und Kabel. Der Deckel trägt die sieben Pips, die Front den LIVE-Taster, die
-Rückseite den Line-In-Anschluss (bzw. eine Kabeldurchführung zum Interface).
+Das Castcorder ist ein liegendes Tapedeck mit ca. **220 × 140 × 60 mm**. Auf der
+Oberseite sitzen Cassettenfenster, VU-Leiter und LIVE-Taster; die Rückseite
+trägt Line-In, Strom und optional USB/Ethernet.
 
-Draufsicht auf den Deckel (7 Pip-Positionen):
+Decklayout (schematisch):
 
 ```
-●           ●        tl, tr
-    ●   ●   ●        ml, c, mr
-●           ●        bl, br
+┌──────────────────────────────────────────────┐
+│  Castcorder                     ● ON AIR     │
+│                                              │
+│   ╭────────────── Cassettenfenster ───────╮  │
+│   │   ◉ ───────────────────────────── ◉   │  │
+│   ╰───────────────────────────────────────╯  │
+│                                              │
+│   [ LIVE ]   ▮▮▮▮▮▮▮  VU-Leiter             │
+└──────────────────────────────────────────────┘
 ```
 
-Bohrbild:
+Die sieben VU-Segmente liegen als waagerechte Leiter unter dem Cassettenfenster,
+von links (leise) nach rechts (laut). Der LIVE-Taster sitzt links daneben, damit
+die Hand beim Drücken nicht über die Leiter wischt.
 
-| Position | Abstand von links | Abstand von oben |
-| -------- | ----------------- | ---------------- |
-| `tl`     | 20 %              | 20 %             |
-| `tr`     | 80 %              | 20 %             |
-| `ml`     | 30 %              | 50 %             |
-| `c`      | 50 %              | 50 %             |
-| `mr`     | 70 %              | 50 %             |
-| `bl`     | 20 %              | 80 %             |
-| `br`     | 80 %              | 80 %             |
+Bohrbild VU-Leiter (Prozentwerte relativ zum Deck-Panel):
 
-Die genauen Maße hängen vom Gehäuse ab; die Prozentwerte sind als
-Orientierung für ein quadratisches Top-Panel gedacht. LEDs von innen mit
-Heißkleber fixieren und die Beinchen isolieren.
+| Segment | Abstand von links | Abstand von oben |
+| ------- | ----------------- | ---------------- |
+| `vu1`   | 8 %               | 72 %             |
+| `vu2`   | 20 %              | 72 %             |
+| `vu3`   | 32 %              | 72 %             |
+| `vu4`   | 44 %              | 72 %             |
+| `vu5`   | 56 %              | 72 %             |
+| `vu6`   | 68 %              | 72 %             |
+| `vu7`   | 80 %              | 72 %             |
+
+Die Prozentwerte sind Orientierung für ein rechteckiges Deck-Panel. LEDs von
+innen mit Heißkleber fixieren und die Beinchen isolieren.
 
 Rückseite/Ausschnitte:
 
@@ -261,7 +270,7 @@ Kunststoffgehäuse verwenden.
 ## Sicherheit
 
 - Arbeite nur mit abgeschaltetem und vom Netz getrenntem Pi.
-- Keine 230-V-Arbeiten im Würfel. Netzteile und Verstärker müssen fertige,
+- Keine 230-V-Arbeiten im Castcorder. Netzteile und Verstärker müssen fertige,
   geprüfte Module sein.
 - 5 V und 12 V nicht verwechseln; der Pi verträgt am 5-V-Pin keine 12 V.
 - Audio-Pegel nicht übersteuern; lieber Master runter und den VU beobachten.

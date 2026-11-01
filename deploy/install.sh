@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installiert den radio-zukka-Live-Würfel auf einem Raspberry Pi.
+# Installiert den Castcorder auf einem Raspberry Pi.
 set -euo pipefail
 
 if [[ ${EUID} -ne 0 ]]; then
@@ -8,9 +8,9 @@ if [[ ${EUID} -ne 0 ]]; then
 fi
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-APP_DIR="/opt/zukka-wuerfel"
-CONFIG_DIR="/etc/zukka-wuerfel"
-SERVICE="zukka-wuerfel.service"
+APP_DIR="/opt/castcorder"
+CONFIG_DIR="/etc/castcorder"
+SERVICE="castcorder.service"
 
 echo "==> Pakete installieren"
 apt-get update
@@ -20,24 +20,24 @@ apt-get install -y --no-install-recommends \
 echo "==> Benutzer und Gruppen"
 getent group gpio >/dev/null || groupadd --system gpio
 getent group audio >/dev/null || groupadd --system audio
-getent group zukka >/dev/null || groupadd --system zukka
+getent group castcorder >/dev/null || groupadd --system castcorder
 
-if ! id -u zukka >/dev/null 2>&1; then
+if ! id -u castcorder >/dev/null 2>&1; then
   useradd --system \
     --home-dir "${APP_DIR}" \
     --shell /usr/sbin/nologin \
     --no-create-home \
-    --gid zukka \
-    zukka
+    --gid castcorder \
+    castcorder
 fi
-usermod -aG gpio,audio zukka
+usermod -aG gpio,audio castcorder
 
 echo "==> Programmdateien nach ${APP_DIR}"
 install -d -m 0755 -o root -g root "${APP_DIR}"
-rm -rf "${APP_DIR}/zukka_wuerfel"
-cp -a "${SCRIPT_DIR}/zukka_wuerfel" "${APP_DIR}/zukka_wuerfel"
-find "${APP_DIR}/zukka_wuerfel" -name '__pycache__' -type d -prune -exec rm -rf {} +
-find "${APP_DIR}/zukka_wuerfel" -name '*.pyc' -delete
+rm -rf "${APP_DIR}/castcorder"
+cp -a "${SCRIPT_DIR}/castcorder" "${APP_DIR}/castcorder"
+find "${APP_DIR}/castcorder" -name '__pycache__' -type d -prune -exec rm -rf {} +
+find "${APP_DIR}/castcorder" -name '*.pyc' -delete
 chown -R root:root "${APP_DIR}"
 
 echo "==> Konfiguration"
@@ -54,7 +54,7 @@ if [[ ! -f "${CONFIG_DIR}/streamer.env" ]]; then
   {
     echo "# Passwort des AzuraCast-Streamer-/DJ-Accounts."
     echo "# Datei bleibt root:root 0600; systemd liest sie vor dem Drop der Rechte."
-    echo "ZUKKA_STREAMER_PASSWORD="
+    echo "CASTCORDER_STREAMER_PASSWORD="
   } > "${CONFIG_DIR}/streamer.env"
   chmod 0600 "${CONFIG_DIR}/streamer.env"
   echo "    Neue Secret-Datei: ${CONFIG_DIR}/streamer.env (Passwort eintragen!)"
@@ -69,7 +69,7 @@ install -m 0644 "${SCRIPT_DIR}/deploy/${SERVICE}" "/etc/systemd/system/${SERVICE
 systemctl daemon-reload
 systemctl enable "${SERVICE}"
 
-if grep -q '^ZUKKA_STREAMER_PASSWORD=.\+' "${CONFIG_DIR}/streamer.env"; then
+if grep -q '^CASTCORDER_STREAMER_PASSWORD=.\+' "${CONFIG_DIR}/streamer.env"; then
   systemctl restart "${SERVICE}"
 else
   echo "    Passwort noch leer – Service wird noch nicht gestartet."
@@ -83,4 +83,4 @@ echo "  journalctl -u ${SERVICE} -f"
 echo
 echo "Voraussetzungen prüfen (liest streamer.env als root):"
 echo "  sudo bash -c 'set -a; . ${CONFIG_DIR}/streamer.env; set +a; cd ${APP_DIR}; \\"
-echo "    exec /usr/bin/python3 -m zukka_wuerfel --config ${CONFIG_DIR}/config.toml --check'"
+echo "    exec /usr/bin/python3 -m castcorder --config ${CONFIG_DIR}/config.toml --check'"

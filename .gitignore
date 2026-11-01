@@ -10,3 +10,4 @@ config.toml
 config.dev.toml
 streamer.env
 .pytest_cache/
+.preview/

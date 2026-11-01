@@ -1,21 +1,27 @@
-// radio zukka Würfel — page interactions
+// Castcorder — page interactions
 
 (function () {
   "use strict";
 
   /* ---------- LED demo ---------- */
 
-  var pips = Array.prototype.slice.call(document.querySelectorAll(".pip"));
+  var demoDeck = document.querySelector(".deck--demo");
+  var segments = demoDeck
+    ? Array.prototype.slice.call(demoDeck.querySelectorAll(".seg"))
+    : [];
+  var reels = demoDeck
+    ? Array.prototype.slice.call(demoDeck.querySelectorAll(".reel"))
+    : [];
   var liveBtn = document.getElementById("live-btn");
   var note = document.getElementById("demo-note");
   var chips = Array.prototype.slice.call(document.querySelectorAll("[data-state]"));
 
   var notes = {
     idle: "Alles aus — die LIVE-Taste glimmt nur schwach.",
-    connecting: "Die Pips rollen 1 → 6, die Taste blinkt.",
-    live: "Eingangspegel als Würfel 0–6. Bei 0 dBFS leuchten alle 7 (Clipping).",
-    retrying: "Alle blinken langsam: der Encoder versucht es erneut.",
-    error: "Alle blinken schnell: max_retries erreicht."
+    connecting: "Die VU-Leiter läuft 1 → 7 durch, die Spulen drehen.",
+    live: "Eingangspegel als Leiter 0–7. Bei 0 dBFS leuchtet die ganze Leiter (Clipping).",
+    retrying: "Alle Segmente blinken langsam: der Encoder versucht es erneut.",
+    error: "Alle Segmente blinken schnell: max_retries erreicht.",
   };
 
   var state = "idle";
@@ -27,16 +33,19 @@
       clearInterval(timer);
       timer = null;
     }
-    pips.forEach(function (p) {
-      p.className = "pip";
+    segments.forEach(function (s) {
+      s.className = "seg";
+    });
+    reels.forEach(function (r) {
+      r.classList.remove("is-spinning");
     });
   }
 
   function paintLevel(n) {
-    pips.forEach(function (p, i) {
+    segments.forEach(function (s, i) {
       var on = i < n;
-      p.classList.toggle("on", on);
-      p.classList.toggle("clip", on && n >= 7);
+      s.classList.toggle("on", on);
+      s.classList.toggle("clip", on && n >= 7);
     });
   }
 
@@ -60,14 +69,18 @@
 
     if (next === "connecting") {
       var i = 0;
+      reels.forEach(function (r) {
+        r.classList.add("is-spinning");
+      });
       timer = setInterval(function () {
-        pips.forEach(function (p, idx) {
-          p.classList.toggle("on", idx === i % pips.length);
-        });
+        paintLevel((i % segments.length) + 1);
         i += 1;
       }, 140);
     } else if (next === "live") {
       level = 3;
+      reels.forEach(function (r) {
+        r.classList.add("is-spinning");
+      });
       timer = setInterval(function () {
         level += Math.random() * 2.6 - 1.15;
         if (level < 0) level = 0;
@@ -75,12 +88,12 @@
         paintLevel(Math.round(level));
       }, 130);
     } else if (next === "retrying") {
-      pips.forEach(function (p) {
-        p.classList.add("blink-slow");
+      segments.forEach(function (s) {
+        s.classList.add("blink-slow");
       });
     } else if (next === "error") {
-      pips.forEach(function (p) {
-        p.classList.add("blink-fast");
+      segments.forEach(function (s) {
+        s.classList.add("blink-fast");
       });
     }
   }
@@ -130,7 +143,7 @@
           },
           function () {
             done("Nicht erlaubt");
-          }
+          },
         );
       } else {
         done("Nicht erlaubt");
@@ -145,20 +158,23 @@
   var lightboxCaption = document.getElementById("lightbox-caption");
 
   if (lightbox && lightboxImg) {
-    Array.prototype.forEach.call(document.querySelectorAll("[data-lightbox]"), function (btn) {
-      btn.addEventListener("click", function () {
-        var img = btn.querySelector("img");
-        if (!img) return;
-        lightboxImg.src = img.src;
-        lightboxImg.alt = img.alt;
-        if (lightboxCaption) {
-          lightboxCaption.textContent = btn.dataset.lightbox || "";
-        }
-        if (typeof lightbox.showModal === "function") {
-          lightbox.showModal();
-        }
-      });
-    });
+    Array.prototype.forEach.call(
+      document.querySelectorAll("[data-lightbox]"),
+      function (btn) {
+        btn.addEventListener("click", function () {
+          var img = btn.querySelector("img");
+          if (!img) return;
+          lightboxImg.src = img.src;
+          lightboxImg.alt = img.alt;
+          if (lightboxCaption) {
+            lightboxCaption.textContent = btn.dataset.lightbox || "";
+          }
+          if (typeof lightbox.showModal === "function") {
+            lightbox.showModal();
+          }
+        });
+      },
+    );
 
     lightbox.addEventListener("click", function (event) {
       if (event.target === lightbox) {
@@ -186,7 +202,7 @@
           }
         });
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
     );
 
     revealables.forEach(function (el) {

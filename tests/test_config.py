@@ -6,7 +6,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from zukka_wuerfel.config import (
+from castcorder.config import (
+    DEFAULT_PASSWORD_ENV,
     ConfigError,
     load_config,
     read_streamer_password,
@@ -27,7 +28,7 @@ password_env = "TEST_STREAMER_PASSWORD"
 
 [gpio]
 button_pin = 17
-pips = [5, 6, 16, 22, 23, 24, 25]
+vu_leds = [5, 6, 16, 22, 23, 24, 25]
 """
 
 
@@ -52,7 +53,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(cfg.stream.host, "cast.zukkafabrik.de")
         self.assertEqual(cfg.stream.port, 8005)
         self.assertEqual(cfg.gpio.button_pin, 17)
-        self.assertEqual(len(cfg.gpio.pips), 7)
+        self.assertEqual(len(cfg.gpio.vu_leds), 7)
 
     def test_missing_device_is_rejected(self) -> None:
         with self.assertRaisesRegex(ConfigError, "device"):
@@ -81,12 +82,12 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ConfigError, "Unbekannte"):
             self.load(BASE.replace("port = 8005", "port = 8005\nbogus = 1"))
 
-    def test_pips_need_seven_entries(self) -> None:
+    def test_vu_leds_need_seven_entries(self) -> None:
         with self.assertRaisesRegex(ConfigError, "genau 7"):
             self.load(
                 BASE.replace(
-                    "pips = [5, 6, 16, 22, 23, 24, 25]",
-                    "pips = [5, 6, 16]",
+                    "vu_leds = [5, 6, 16, 22, 23, 24, 25]",
+                    "vu_leds = [5, 6, 16]",
                 )
             )
 
@@ -94,8 +95,8 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ConfigError, "doppelt belegt"):
             self.load(
                 BASE.replace(
-                    "pips = [5, 6, 16, 22, 23, 24, 25]",
-                    "pips = [5, 6, 16, 22, 23, 24, 17]",
+                    "vu_leds = [5, 6, 16, 22, 23, 24, 25]",
+                    "vu_leds = [5, 6, 16, 22, 23, 24, 17]",
                 )
             )
 
@@ -133,6 +134,18 @@ class ConfigTests(unittest.TestCase):
         with mock.patch.dict(os.environ, {}, clear=True):
             with self.assertRaisesRegex(ConfigError, "TEST_STREAMER_PASSWORD"):
                 read_streamer_password(cfg.stream)
+
+    def test_default_password_env_name(self) -> None:
+        self.assertEqual(DEFAULT_PASSWORD_ENV, "CASTCORDER_STREAMER_PASSWORD")
+        cfg = self.load(BASE.replace('password_env = "TEST_STREAMER_PASSWORD"', ""))
+        self.assertEqual(cfg.stream.password_env, "CASTCORDER_STREAMER_PASSWORD")
+
+    def test_password_from_default_environment(self) -> None:
+        cfg = self.load(BASE.replace('password_env = "TEST_STREAMER_PASSWORD"', ""))
+        with mock.patch.dict(
+            os.environ, {"CASTCORDER_STREAMER_PASSWORD": "neu"}, clear=True
+        ):
+            self.assertEqual(read_streamer_password(cfg.stream), "neu")
 
     def test_missing_file(self) -> None:
         with self.assertRaisesRegex(ConfigError, "nicht gefunden"):

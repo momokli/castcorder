@@ -1,572 +1,1046 @@
 <!doctype html>
 <html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>radio zukka Würfel — Live-DJ-Encoder für AzuraCast</title>
-<meta name="description" content="Ein Raspberry Pi im Würfelgehäuse: Mischpult-Master rein, LIVE drücken, als DJ-Identity auf radio.zukkafabrik.de on air. Eigenständiger Icecast-Source-Encoder für AzuraCast.">
-<meta name="theme-color" content="#0c0a09">
-<link rel="canonical" href="https://momokli.github.io/zukka_wuerfel/">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0a09'/%3E%3Cg fill='%23ffb04a'%3E%3Ccircle cx='9' cy='9' r='2.6'/%3E%3Ccircle cx='23' cy='9' r='2.6'/%3E%3Ccircle cx='9' cy='16' r='2.6'/%3E%3Ccircle cx='16' cy='16' r='2.6'/%3E%3Ccircle cx='23' cy='16' r='2.6'/%3E%3Ccircle cx='9' cy='23' r='2.6'/%3E%3Ccircle cx='23' cy='23' r='2.6'/%3E%3C/g%3E%3C/svg%3E">
-<meta property="og:type" content="website">
-<meta property="og:title" content="radio zukka Würfel — Live-DJ-Encoder">
-<meta property="og:description" content="Raspberry Pi im Würfelgehäuse: Mischpult-Master rein, LIVE drücken, on air. Eigenständiger Icecast-Source-Encoder für AzuraCast.">
-<meta property="og:image" content="https://momokli.github.io/zukka_wuerfel/casing/concepts/web/05-walnut-eao-corrected.jpg">
-<meta property="og:url" content="https://momokli.github.io/zukka_wuerfel/">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Castcorder — Live-DJ-Tapedeck für AzuraCast</title>
+        <meta
+            name="description"
+            content="Ein Raspberry Pi im Tapedeck-Gehäuse: Mischpult-Master rein, LIVE drücken, als DJ-Identity auf radio.zukkafabrik.de on air. Eigenständiger Icecast-Source-Encoder für AzuraCast."
+        />
+        <meta name="theme-color" content="#0c0a09" />
+        <link rel="canonical" href="https://momokli.github.io/castcorder/" />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0a09'/%3E%3Crect x='5' y='9' width='22' height='14' rx='2.5' fill='none' stroke='%23ffb04a' stroke-width='1.6'/%3E%3Ccircle cx='11.5' cy='16' r='2.6' fill='%23ffb04a'/%3E%3Ccircle cx='20.5' cy='16' r='2.6' fill='%23ffb04a'/%3E%3Cpath d='M8 23h16' stroke='%23ffb04a' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Castcorder — Live-DJ-Tapedeck" />
+        <meta
+            property="og:description"
+            content="Raspberry Pi im Tapedeck-Gehäuse: Mischpult-Master rein, LIVE drücken, on air. Eigenständiger Icecast-Source-Encoder für AzuraCast."
+        />
+        <meta
+            property="og:image"
+            content="https://momokli.github.io/castcorder/casing/concepts/00-castcorder-sketch.png"
+        />
+        <meta property="og:url" content="https://momokli.github.io/castcorder/" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <a class="skip-link" href="#main">Zum Inhalt springen</a>
 
-<a class="skip-link" href="#main">Zum Inhalt springen</a>
+        <header class="site-header">
+            <div class="wrap">
+                <a class="brand" href="#top">
+                    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+                        <rect
+                            x="0.75"
+                            y="0.75"
+                            width="30.5"
+                            height="30.5"
+                            rx="8"
+                            fill="#1c1613"
+                            stroke="rgba(255,176,74,0.35)"
+                            stroke-width="1.5"
+                        />
+                        <rect
+                            x="6"
+                            y="10"
+                            width="20"
+                            height="12"
+                            rx="2"
+                            fill="none"
+                            stroke="#ffb04a"
+                            stroke-width="1.6"
+                        />
+                        <circle cx="12" cy="16" r="2.4" fill="#ffb04a" />
+                        <circle cx="20" cy="16" r="2.4" fill="#ffb04a" />
+                        <path
+                            d="M9 22h14"
+                            stroke="#ffb04a"
+                            stroke-width="1.6"
+                            stroke-linecap="round"
+                        />
+                    </svg>
+                    <span>Castcorder</span>
+                </a>
 
-<header class="site-header">
-  <div class="wrap">
-    <a class="brand" href="#top">
-      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
-        <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="8" fill="#1c1613" stroke="rgba(255,176,74,0.35)" stroke-width="1.5"/>
-        <g fill="#ffb04a">
-          <circle cx="10" cy="10" r="2.1"/>
-          <circle cx="22" cy="10" r="2.1"/>
-          <circle cx="10" cy="16" r="2.1"/>
-          <circle cx="16" cy="16" r="2.1"/>
-          <circle cx="22" cy="16" r="2.1"/>
-          <circle cx="10" cy="22" r="2.1"/>
-          <circle cx="22" cy="22" r="2.1"/>
-        </g>
-      </svg>
-      <span>radio zukka<small>Würfel</small></span>
-    </a>
+                <nav class="site-nav" aria-label="Abschnitte">
+                    <a href="#castcorder">Castcorder</a>
+                    <a href="#led">LEDs</a>
+                    <a href="#signal">Signalweg</a>
+                    <a href="#hardware">Hardware</a>
+                    <a href="#bauen">Bauen</a>
+                    <a href="#gehaeuse">Gehäuse</a>
+                </nav>
 
-    <nav class="site-nav" aria-label="Abschnitte">
-      <a href="#wuerfel">Würfel</a>
-      <a href="#led">LEDs</a>
-      <a href="#signal">Signalweg</a>
-      <a href="#hardware">Hardware</a>
-      <a href="#bauen">Bauen</a>
-      <a href="#gehaeuse">Gehäuse</a>
-    </nav>
+                <a class="header-cta" href="https://github.com/momokli/castcorder">
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+                        />
+                    </svg>
+                    <span>GitHub</span>
+                </a>
+            </div>
+        </header>
 
-    <a class="header-cta" href="https://github.com/momokli/zukka_wuerfel">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
-      </svg>
-      <span>GitHub</span>
-    </a>
-  </div>
-</header>
+        <main id="main">
+            <!-- ================= hero ================= -->
+            <section class="wrap hero" id="top">
+                <div class="hero-copy">
+                    <p class="eyebrow">Raspberry Pi · Icecast Source · AzuraCast</p>
+                    <h1>Ein Tapedeck.<br />Ein Knopf.<br /><em>Du bist live.</em></h1>
+                    <p class="lead">
+                        Das Castcorder nimmt den Master-Out deines Mischpults, encodiert
+                        ihn zu
+                        <strong>MP3 192 kbps</strong> und schickt ihn als deine
+                        DJ-Identity auf <strong>radio.zukkafabrik.de</strong>. Nochmal
+                        drücken → zurück zum AutoDJ.
+                    </p>
+                    <div class="actions">
+                        <a class="btn btn-primary" href="#bauen">Schnellstart</a>
+                        <a
+                            class="btn btn-ghost"
+                            href="https://github.com/momokli/castcorder"
+                            >Quellcode</a
+                        >
+                        <a class="btn btn-ghost" href="https://radio.zukkafabrik.de"
+                            >Live hören</a
+                        >
+                    </div>
+                </div>
 
-<main id="main">
+                <div class="hero-media">
+                    <div
+                        class="deck deck--hero"
+                        role="img"
+                        aria-label="Castcorder-Tapedeck: Nussbaumgehäuse mit Cassettenfenster, siebensegmentiger VU-Leiter und rotem LIVE-Taster."
+                    >
+                        <div class="deck-top">
+                            <span class="deck-brand">Castcorder</span>
+                            <span class="deck-air"><span class="dot"></span>ON AIR</span>
+                        </div>
+                        <div class="deck-cassette">
+                            <div class="reel reel-left is-spinning"></div>
+                            <div class="tape-window"></div>
+                            <div class="reel reel-right is-spinning"></div>
+                        </div>
+                        <div class="deck-bottom">
+                            <span class="deck-live is-on" aria-hidden="true">LIVE</span>
+                            <div class="vu" aria-hidden="true">
+                                <div class="seg on"></div>
+                                <div class="seg on"></div>
+                                <div class="seg on"></div>
+                                <div class="seg on"></div>
+                                <div class="seg on"></div>
+                                <div class="seg"></div>
+                                <div class="seg"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-  <!-- ================= hero ================= -->
-  <section class="wrap hero" id="top">
-    <div class="hero-copy">
-      <p class="eyebrow">Raspberry Pi · Icecast Source · AzuraCast</p>
-      <h1>Ein Würfel.<br>Ein Knopf.<br><em>Du bist live.</em></h1>
-      <p class="lead">
-        Der Würfel nimmt den Master-Out deines Mischpults, encodiert ihn zu
-        <strong>MP3 192 kbps</strong> und schickt ihn als deine DJ-Identity auf
-        <strong>radio.zukkafabrik.de</strong>. Nochmal drücken → zurück zum AutoDJ.
-      </p>
-      <div class="actions">
-        <a class="btn btn-primary" href="#bauen">Schnellstart</a>
-        <a class="btn btn-ghost" href="https://github.com/momokli/zukka_wuerfel">Quellcode</a>
-        <a class="btn btn-ghost" href="https://radio.zukkafabrik.de">Live hören</a>
-      </div>
-    </div>
+            <div class="wrap">
+                <div class="stats">
+                    <div class="stat"><b>1</b><span>Knopf: LIVE / AutoDJ</span></div>
+                    <div class="stat"><b>7</b><span>VU-Segmente</span></div>
+                    <div class="stat"><b>192</b><span>kbps MP3 CBR</span></div>
+                    <div class="stat"><b>0</b><span>pip-Abhängigkeiten</span></div>
+                </div>
+            </div>
 
-    <div class="hero-media">
-      <img src="casing/concepts/web/05-walnut-eao-corrected.jpg" width="1184" height="864"
-           alt="Konzept-Rendering des radio zukka Würfels: Nussbaumgehäuse mit schwarzer Frontplatte, beleuchtetem LIVE-Taster, Display und sieben leuchtenden Pips auf dem Deckel."
-           fetchpriority="high">
-      <span class="hero-tag"><span class="dot"></span>ON AIR</span>
-    </div>
-  </section>
+            <!-- ================= features ================= -->
+            <section class="wrap" id="castcorder">
+                <div class="section-head reveal">
+                    <h2>Ein Knopf. Zwei Zustände.</h2>
+                    <p>
+                        Kein Laptop, kein Mixxx, kein Browser-Tab: Das Castcorder ist ein
+                        eigenständiger Icecast-Source-Encoder für AzuraCast. Es verbindet
+                        sich direkt mit Liquidsoap auf dem DJ-Port deines
+                        Streamer-Accounts.
+                    </p>
+                </div>
 
-  <div class="wrap">
-    <div class="stats">
-      <div class="stat"><b>1</b><span>Knopf: LIVE / AutoDJ</span></div>
-      <div class="stat"><b>7</b><span>Pips als VU-Meter</span></div>
-      <div class="stat"><b>192</b><span>kbps MP3 CBR</span></div>
-      <div class="stat"><b>0</b><span>pip-Abhängigkeiten</span></div>
-    </div>
-  </div>
+                <div class="cards">
+                    <article class="card reveal">
+                        <div class="icon" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                            >
+                                <path d="M12 3v9" />
+                                <path d="M6.3 6.3a8 8 0 1 0 11.4 0" />
+                            </svg>
+                        </div>
+                        <h3>Ein Knopf, zwei Zustände</h3>
+                        <p>
+                            LIVE senden oder stoppen. Mehr Bedienung gibt es nicht — der
+                            Rest passiert im Hintergrund.
+                        </p>
+                    </article>
 
-  <!-- ================= features ================= -->
-  <section class="wrap" id="wuerfel">
-    <div class="section-head reveal">
-      <h2>Ein Knopf. Zwei Zustände.</h2>
-      <p>
-        Kein Laptop, kein Mixxx, kein Browser-Tab: Der Würfel ist ein eigenständiger
-        Icecast-Source-Encoder für AzuraCast. Er verbindet sich direkt mit Liquidsoap
-        auf dem DJ-Port deines Streamer-Accounts.
-      </p>
-    </div>
+                    <article class="card reveal">
+                        <div class="icon" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                            >
+                                <circle cx="12" cy="8" r="3.5" />
+                                <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+                            </svg>
+                        </div>
+                        <h3>Deine DJ-Identity</h3>
+                        <p>
+                            Das Castcorder meldet sich mit dem konfigurierten
+                            Streamer-Account an — nicht mit dem Admin-Account.
+                        </p>
+                    </article>
 
-    <div class="cards">
-      <article class="card reveal">
-        <div class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M12 3v9"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/>
-          </svg>
-        </div>
-        <h3>Ein Knopf, zwei Zustände</h3>
-        <p>LIVE senden oder stoppen. Mehr Bedienung gibt es nicht — der Rest passiert im Hintergrund.</p>
-      </article>
+                    <article class="card reveal">
+                        <div class="icon" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                            >
+                                <path d="M4 20v-6M9 20V9M14 20v-8M19 20V5" />
+                            </svg>
+                        </div>
+                        <h3>VU-Leiter unter dem Cassettenfenster</h3>
+                        <p>
+                            Der Eingangspegel läuft in Echtzeit über sieben Segmente. Bei
+                            0 dBFS leuchtet die ganze Leiter: Clipping.
+                        </p>
+                    </article>
 
-      <article class="card reveal">
-        <div class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>
-          </svg>
-        </div>
-        <h3>Deine DJ-Identity</h3>
-        <p>Der Würfel meldet sich mit dem konfigurierten Streamer-Account an — nicht mit dem Admin-Account.</p>
-      </article>
+                    <article class="card reveal">
+                        <div class="icon" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                            >
+                                <rect x="4.5" y="10.5" width="15" height="10" rx="2.5" />
+                                <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+                            </svg>
+                        </div>
+                        <h3>Passwort bleibt geheim</h3>
+                        <p>
+                            Nur in <code>/etc/castcorder/streamer.env</code> (0600, root).
+                            Nicht in der TOML, nicht im Repo, nicht in <code>ps</code>.
+                        </p>
+                    </article>
 
-      <article class="card reveal">
-        <div class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 20v-6M9 20V9M14 20v-8M19 20V5"/>
-          </svg>
-        </div>
-        <h3>VU-Meter auf den Pips</h3>
-        <p>Der Eingangspegel läuft in Echtzeit als Würfel-Augen 0–6. Bei 0 dBFS leuchten alle sieben: Clipping.</p>
-      </article>
+                    <article class="card reveal">
+                        <div class="icon" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                            >
+                                <path d="M20 12a8 8 0 1 1-2.6-5.9" />
+                                <path d="M20 4v4.5h-4.5" />
+                            </svg>
+                        </div>
+                        <h3>Robust bei Netzproblemen</h3>
+                        <p>
+                            Verbindungsfehler werden mit Delay automatisch neu versucht.
+                            Ein zweiter Druck bricht den Retry ab.
+                        </p>
+                    </article>
 
-      <article class="card reveal">
-        <div class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>
-          </svg>
-        </div>
-        <h3>Passwort bleibt geheim</h3>
-        <p>Nur in <code>/etc/zukka-wuerfel/streamer.env</code> (0600, root). Nicht in der TOML, nicht im Repo, nicht in <code>ps</code>.</p>
-      </article>
+                    <article class="card reveal">
+                        <div class="icon" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                            >
+                                <path d="M9 3v5M15 3v5" />
+                                <path d="M6 8h12v3a6 6 0 0 1-12 0z" />
+                                <path d="M12 17v4" />
+                            </svg>
+                        </div>
+                        <h3>Passt in deine Pipeline</h3>
+                        <p>
+                            AzuraCast sieht einen normalen Live-DJ und feuert
+                            <code>live_connect</code>/<code>live_disconnect</code>.
+                            Telegram, Recording und Uploads laufen wie bei BUTT oder
+                            Mixxx.
+                        </p>
+                    </article>
+                </div>
+            </section>
 
-      <article class="card reveal">
-        <div class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.5h-4.5"/>
-          </svg>
-        </div>
-        <h3>Robust bei Netzproblemen</h3>
-        <p>Verbindungsfehler werden mit Delay automatisch neu versucht. Ein zweiter Druck bricht den Retry ab.</p>
-      </article>
+            <!-- ================= LED demo ================= -->
+            <section class="wrap" id="led">
+                <div class="section-head reveal">
+                    <h2>Das Castcorder zeigt, was es tut.</h2>
+                    <p>
+                        Die sieben Segmente sind Statusanzeige und VU-Leiter gleichzeitig.
+                        Drück den LIVE-Knopf oder spring direkt in einen Zustand:
+                    </p>
+                </div>
 
-      <article class="card reveal">
-        <div class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/>
-          </svg>
-        </div>
-        <h3>Passt in deine Pipeline</h3>
-        <p>AzuraCast sieht einen normalen Live-DJ und feuert <code>live_connect</code>/<code>live_disconnect</code>. Telegram, Recording und Uploads laufen wie bei BUTT oder Mixxx.</p>
-      </article>
-    </div>
-  </section>
+                <div class="led-demo reveal">
+                    <div
+                        class="deck deck--demo"
+                        role="group"
+                        aria-label="Castcorder-Tapedeck mit Cassettenfenster, VU-Leiter und LIVE-Taster"
+                    >
+                        <div class="deck-top">
+                            <span class="deck-brand">Castcorder</span>
+                            <span class="deck-air"><span class="dot"></span>ON AIR</span>
+                        </div>
+                        <div class="deck-cassette">
+                            <div class="reel reel-left"></div>
+                            <div class="tape-window"></div>
+                            <div class="reel reel-right"></div>
+                        </div>
+                        <div class="deck-bottom">
+                            <button
+                                class="deck-live"
+                                id="live-btn"
+                                type="button"
+                                aria-pressed="false"
+                            >
+                                LIVE
+                            </button>
+                            <div
+                                class="vu"
+                                role="group"
+                                aria-label="VU-Leiter mit sieben Segmenten"
+                            >
+                                <div class="seg" data-pos="vu1"></div>
+                                <div class="seg" data-pos="vu2"></div>
+                                <div class="seg" data-pos="vu3"></div>
+                                <div class="seg" data-pos="vu4"></div>
+                                <div class="seg" data-pos="vu5"></div>
+                                <div class="seg" data-pos="vu6"></div>
+                                <div class="seg" data-pos="vu7"></div>
+                            </div>
+                        </div>
+                    </div>
 
-  <!-- ================= LED demo ================= -->
-  <section class="wrap" id="led">
-    <div class="section-head reveal">
-      <h2>Der Würfel zeigt, was er tut.</h2>
-      <p>
-        Die sieben Pips sind Statusanzeige und VU-Meter gleichzeitig. Drück den
-        LIVE-Knopf oder spring direkt in einen Zustand:
-      </p>
-    </div>
+                    <div class="demo-panel">
+                        <h3>LED-Verhalten</h3>
+                        <p class="demo-note" id="demo-note" aria-live="polite">
+                            Alles aus — die LIVE-Taste glimmt nur schwach.
+                        </p>
 
-    <div class="led-demo reveal">
-      <div class="cube" role="img" aria-label="Würfeldeckel mit sieben Pips, die den aktuellen LED-Zustand anzeigen">
-        <div class="pip" data-pos="tl"></div>
-        <div class="pip" data-pos="tr"></div>
-        <div class="pip" data-pos="ml"></div>
-        <div class="pip" data-pos="c"></div>
-        <div class="pip" data-pos="mr"></div>
-        <div class="pip" data-pos="bl"></div>
-        <div class="pip" data-pos="br"></div>
-      </div>
+                        <div
+                            class="state-chips"
+                            role="group"
+                            aria-label="LED-Zustand simulieren"
+                        >
+                            <button
+                                class="chip is-active"
+                                type="button"
+                                data-state="idle"
+                            >
+                                idle
+                            </button>
+                            <button class="chip" type="button" data-state="connecting">
+                                connecting
+                            </button>
+                            <button class="chip" type="button" data-state="live">
+                                live
+                            </button>
+                            <button class="chip" type="button" data-state="retrying">
+                                retrying
+                            </button>
+                            <button class="chip" type="button" data-state="error">
+                                error
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-      <div class="demo-panel">
-        <h3>LED-Verhalten</h3>
-        <p class="demo-note" id="demo-note" aria-live="polite">Alles aus — die LIVE-Taste glimmt nur schwach.</p>
+                <p class="subhead" style="margin-top: 2rem">Zustandsreferenz</p>
+                <div class="table-wrap reveal">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zustand</th>
+                                <th>VU-Leiter</th>
+                                <th>LIVE-Taste</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>idle</code></td>
+                                <td>aus</td>
+                                <td>glimmt schwach</td>
+                            </tr>
+                            <tr>
+                                <td><code>connecting</code></td>
+                                <td>läuft 1 → 7 durch</td>
+                                <td>blinkt</td>
+                            </tr>
+                            <tr>
+                                <td><code>live</code></td>
+                                <td>Eingangspegel als Leiter 0–7, alle 7 bei Clipping</td>
+                                <td>an</td>
+                            </tr>
+                            <tr>
+                                <td><code>retrying</code></td>
+                                <td>alle blinken langsam</td>
+                                <td>aus</td>
+                            </tr>
+                            <tr>
+                                <td><code>error</code></td>
+                                <td>alle blinken schnell</td>
+                                <td>aus</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-        <button class="live-btn" id="live-btn" type="button" aria-pressed="false">LIVE</button>
+            <!-- ================= signal flow ================= -->
+            <section class="wrap" id="signal">
+                <div class="section-head reveal">
+                    <h2>Vom Mischpult zu den Hörern</h2>
+                    <p>
+                        ffmpeg liest den ALSA-Eingang und schreibt MP3 nach stdout. Das
+                        Castcorder sendet selbst
+                        <code>SOURCE &lt;mount&gt; HTTP/1.0</code> mit Basic Auth an
+                        AzuraCast/Liquidsoap — erst nach den ersten echten MP3-Daten wird
+                        die Quelle angemeldet und LIVE angezeigt.
+                    </p>
+                </div>
 
-        <div class="state-chips" role="group" aria-label="LED-Zustand simulieren">
-          <button class="chip is-active" type="button" data-state="idle">idle</button>
-          <button class="chip" type="button" data-state="connecting">connecting</button>
-          <button class="chip" type="button" data-state="live">live</button>
-          <button class="chip" type="button" data-state="retrying">retrying</button>
-          <button class="chip" type="button" data-state="error">error</button>
-        </div>
-      </div>
-    </div>
+                <div class="flow reveal">
+                    <div class="flow-step">
+                        <b>Mischpult</b>
+                        <span>Master Out</span>
+                    </div>
+                    <div class="flow-step">
+                        <b>USB-Interface</b>
+                        <span>Line-In / ADC</span>
+                    </div>
+                    <div class="flow-step is-accent">
+                        <b>Castcorder</b>
+                        <span>ffmpeg · MP3 192k</span>
+                    </div>
+                    <div class="flow-step">
+                        <b>Icecast Source</b>
+                        <span>Basic Auth</span>
+                    </div>
+                    <div class="flow-step">
+                        <b>AzuraCast</b>
+                        <span>Liquidsoap</span>
+                    </div>
+                </div>
 
-    <p class="subhead" style="margin-top:2rem">Zustandsreferenz</p>
-    <div class="table-wrap reveal">
-      <table>
-        <thead>
-          <tr><th>Zustand</th><th>Würfel-Pips</th><th>LIVE-Taste</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>idle</code></td><td>aus</td><td>glimmt schwach</td></tr>
-          <tr><td><code>connecting</code></td><td>rollen 1 → 6</td><td>blinkt</td></tr>
-          <tr><td><code>live</code></td><td>Eingangspegel als Würfel 0–6, alle 7 bei Clipping</td><td>an</td></tr>
-          <tr><td><code>retrying</code></td><td>alle blinken langsam</td><td>aus</td></tr>
-          <tr><td><code>error</code></td><td>alle blinken schnell</td><td>aus</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+                <div class="cards" style="margin-top: 1.5rem">
+                    <article class="card reveal">
+                        <h3>Warum ein eigener Source-Client?</h3>
+                        <p>
+                            ffmpegs eingebauter <code>icecast://</code>-Client lehnt den
+                            bei AzuraCast üblichen Mountpoint <code>/</code> ab. Das
+                            Castcorder übernimmt den Icecast-Handshake deshalb selbst.
+                        </p>
+                    </article>
+                    <article class="card reveal">
+                        <h3>Kein falscher Live-Webhook</h3>
+                        <p>
+                            Die Quelle wird erst angemeldet, wenn wirklich MP3-Daten
+                            fließen. Ein falsch konfiguriertes Eingabegerät löst also
+                            keinen Live-Event aus.
+                        </p>
+                    </article>
+                    <article class="card reveal">
+                        <h3>Getestet ohne Hardware</h3>
+                        <p>
+                            Die Testsuite braucht weder Pi noch ALSA noch Netzwerk:
+                            Icecast-Protokoll gegen einen Fake-Server,
+                            <code>astats</code>-Parser, Encoder-Lebenszyklus und die
+                            komplette Zustandsmaschine.
+                        </p>
+                    </article>
+                </div>
+            </section>
 
-  <!-- ================= signal flow ================= -->
-  <section class="wrap" id="signal">
-    <div class="section-head reveal">
-      <h2>Vom Mischpult zu den Hörern</h2>
-      <p>
-        ffmpeg liest den ALSA-Eingang und schreibt MP3 nach stdout. Der Würfel sendet
-        selbst <code>SOURCE &lt;mount&gt; HTTP/1.0</code> mit Basic Auth an
-        AzuraCast/Liquidsoap — erst nach den ersten echten MP3-Daten wird die Quelle
-        angemeldet und LIVE angezeigt.
-      </p>
-    </div>
+            <!-- ================= hardware ================= -->
+            <section class="wrap" id="hardware">
+                <div class="section-head reveal">
+                    <h2>Was du brauchst</h2>
+                    <p>
+                        Der Pi hat keinen Line-In — die 3,5-mm-Buchse ist nur ein Ausgang.
+                        Nötig ist ein USB-Audio-Interface mit Stereo-Line-In
+                        (Plug-and-Play) oder ein ADC-HAT mit Linux-Support. Pegel-, ADC-
+                        und Bohrbild-Details stehen in der
+                        <a
+                            href="https://github.com/momokli/castcorder/blob/main/docs/hardware.md"
+                            >Hardware-Doku</a
+                        >.
+                    </p>
+                </div>
 
-    <div class="flow reveal">
-      <div class="flow-step">
-        <b>Mischpult</b>
-        <span>Master Out</span>
-      </div>
-      <div class="flow-step">
-        <b>USB-Interface</b>
-        <span>Line-In / ADC</span>
-      </div>
-      <div class="flow-step is-accent">
-        <b>Würfel</b>
-        <span>ffmpeg · MP3 192k</span>
-      </div>
-      <div class="flow-step">
-        <b>Icecast Source</b>
-        <span>Basic Auth</span>
-      </div>
-      <div class="flow-step">
-        <b>AzuraCast</b>
-        <span>Liquidsoap</span>
-      </div>
-    </div>
+                <div class="two-col">
+                    <div class="reveal">
+                        <p class="subhead">Stückliste</p>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Teil</th>
+                                        <th>Empfehlung</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Pi</td>
+                                        <td>
+                                            Raspberry Pi 4/5 — Zero 2 W geht, ist aber
+                                            knapp für USB + Encoding
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Audio-Eingang</td>
+                                        <td>
+                                            USB-Interface mit Stereo-Line-In (z. B.
+                                            Behringer UCA202/222) oder ADC-HAT
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Knopf</td>
+                                        <td>
+                                            16-mm-Taster „LIVE“, momentary, beleuchtet
+                                            (3,3-V-LED)
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>VU-Leiter</td>
+                                        <td>7 × 5-mm-LED warmweiß/amber + 220–330 Ω</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Strom</td>
+                                        <td>
+                                            offizielles 5-V-Netzteil (Pi 4: 3 A, Pi 5: 5
+                                            A, Zero 2 W: 2,5 A)
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gehäuse</td>
+                                        <td>
+                                            Tapedeck ~220 × 140 × 60 mm mit
+                                            Cassettenfenster, VU-Leiter und LIVE-Taster
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-    <div class="cards" style="margin-top:1.5rem">
-      <article class="card reveal">
-        <h3>Warum ein eigener Source-Client?</h3>
-        <p>
-          ffmpegs eingebauter <code>icecast://</code>-Client lehnt den bei AzuraCast
-          üblichen Mountpoint <code>/</code> ab. Der Würfel übernimmt den
-          Icecast-Handshake deshalb selbst.
-        </p>
-      </article>
-      <article class="card reveal">
-        <h3>Kein falscher Live-Webhook</h3>
-        <p>
-          Die Quelle wird erst angemeldet, wenn wirklich MP3-Daten fließen. Ein falsch
-          konfiguriertes Eingabegerät löst also keinen Live-Event aus.
-        </p>
-      </article>
-      <article class="card reveal">
-        <h3>Getestet ohne Hardware</h3>
-        <p>
-          Die Testsuite braucht weder Pi noch ALSA noch Netzwerk: Icecast-Protokoll
-          gegen einen Fake-Server, <code>astats</code>-Parser, Encoder-Lebenszyklus und
-          die komplette Zustandsmaschine.
-        </p>
-      </article>
-    </div>
-  </section>
+                    <div class="reveal">
+                        <p class="subhead">Pinbelegung (BCM)</p>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Funktion</th>
+                                        <th>BCM</th>
+                                        <th>Pin</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>LIVE-Taster</td>
+                                        <td><code>GPIO17</code></td>
+                                        <td>11</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Taster-LED</td>
+                                        <td><code>GPIO27</code></td>
+                                        <td>13</td>
+                                    </tr>
+                                    <tr>
+                                        <td>VU 1 (links)</td>
+                                        <td><code>GPIO5</code></td>
+                                        <td>29</td>
+                                    </tr>
+                                    <tr>
+                                        <td>VU 2</td>
+                                        <td><code>GPIO6</code></td>
+                                        <td>31</td>
+                                    </tr>
+                                    <tr>
+                                        <td>VU 3</td>
+                                        <td><code>GPIO16</code></td>
+                                        <td>36</td>
+                                    </tr>
+                                    <tr>
+                                        <td>VU 4</td>
+                                        <td><code>GPIO22</code></td>
+                                        <td>15</td>
+                                    </tr>
+                                    <tr>
+                                        <td>VU 5</td>
+                                        <td><code>GPIO23</code></td>
+                                        <td>16</td>
+                                    </tr>
+                                    <tr>
+                                        <td>VU 6</td>
+                                        <td><code>GPIO24</code></td>
+                                        <td>18</td>
+                                    </tr>
+                                    <tr>
+                                        <td>VU 7 (rechts)</td>
+                                        <td><code>GPIO25</code></td>
+                                        <td>22</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p
+                            style="
+                                margin: 0.8rem 0 0;
+                                font-size: 0.85rem;
+                                color: var(--muted);
+                            "
+                        >
+                            GPIO18–21 bleiben für I2S/ADC-HAT frei. Alle LEDs über
+                            Vorwiderstand nach GND.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
-  <!-- ================= hardware ================= -->
-  <section class="wrap" id="hardware">
-    <div class="section-head reveal">
-      <h2>Was du brauchst</h2>
-      <p>
-        Der Pi hat keinen Line-In — die 3,5-mm-Buchse ist nur ein Ausgang. Nötig ist ein
-        USB-Audio-Interface mit Stereo-Line-In (Plug-and-Play) oder ein ADC-HAT mit
-        Linux-Support. Pegel-, ADC- und Bohrbild-Details stehen in der
-        <a href="https://github.com/momokli/zukka_wuerfel/blob/main/docs/hardware.md">Hardware-Doku</a>.
-      </p>
-    </div>
+            <!-- ================= build ================= -->
+            <section class="wrap" id="bauen">
+                <div class="section-head reveal">
+                    <h2>In fünf Minuten live</h2>
+                    <p>
+                        Voraussetzungen: Raspberry Pi OS Lite (Bookworm oder neuer),
+                        Netzwerk, eingestecktes Audio-Interface und ein aktiver DJ-Account
+                        in AzuraCast.
+                    </p>
+                </div>
 
-    <div class="two-col">
-      <div class="reveal">
-        <p class="subhead">Stückliste</p>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Teil</th><th>Empfehlung</th></tr></thead>
-            <tbody>
-              <tr><td>Pi</td><td>Raspberry Pi 4/5 — Zero 2 W geht, ist aber knapp für USB + Encoding</td></tr>
-              <tr><td>Audio-Eingang</td><td>USB-Interface mit Stereo-Line-In (z. B. Behringer UCA202/222) oder ADC-HAT</td></tr>
-              <tr><td>Knopf</td><td>16-mm-Taster „LIVE“, momentary, beleuchtet (3,3-V-LED)</td></tr>
-              <tr><td>Pips</td><td>7 × 5-mm-LED warmweiß/amber + 220–330 Ω</td></tr>
-              <tr><td>Strom</td><td>offizielles 5-V-Netzteil (Pi 4: 3 A, Pi 5: 5 A, Zero 2 W: 2,5 A)</td></tr>
-              <tr><td>Gehäuse</td><td>Würfel ~100–120 mm mit Ausschnitt für Line-In/Button</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="reveal">
-        <p class="subhead">Pinbelegung (BCM)</p>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Funktion</th><th>BCM</th><th>Pin</th></tr></thead>
-            <tbody>
-              <tr><td>LIVE-Taster</td><td><code>GPIO17</code></td><td>11</td></tr>
-              <tr><td>Taster-LED</td><td><code>GPIO27</code></td><td>13</td></tr>
-              <tr><td>Pip tl</td><td><code>GPIO5</code></td><td>29</td></tr>
-              <tr><td>Pip tr</td><td><code>GPIO6</code></td><td>31</td></tr>
-              <tr><td>Pip ml</td><td><code>GPIO16</code></td><td>36</td></tr>
-              <tr><td>Pip c</td><td><code>GPIO22</code></td><td>15</td></tr>
-              <tr><td>Pip mr</td><td><code>GPIO23</code></td><td>16</td></tr>
-              <tr><td>Pip bl</td><td><code>GPIO24</code></td><td>18</td></tr>
-              <tr><td>Pip br</td><td><code>GPIO25</code></td><td>22</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p style="margin:0.8rem 0 0;font-size:0.85rem;color:var(--muted)">
-          GPIO18–21 bleiben für I2S/ADC-HAT frei. Alle LEDs über Vorwiderstand nach GND.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= build ================= -->
-  <section class="wrap" id="bauen">
-    <div class="section-head reveal">
-      <h2>In fünf Minuten live</h2>
-      <p>
-        Voraussetzungen: Raspberry Pi OS Lite (Bookworm oder neuer), Netzwerk,
-        eingestecktes Audio-Interface und ein aktiver DJ-Account in AzuraCast.
-      </p>
-    </div>
-
-    <div class="steps">
-      <div class="step reveal">
-        <div>
-          <h3>Repo holen und installieren</h3>
-          <p>Das Skript installiert <code>ffmpeg</code>, <code>alsa-utils</code>, <code>gpiozero</code> und <code>lgpio</code>, legt den Benutzer <code>zukka</code> an und aktiviert den systemd-Service.</p>
-          <div class="code">
-            <div class="code-head"><span>shell</span><button class="copy-btn" type="button">Kopieren</button></div>
-            <pre><code>git clone https://github.com/momokli/zukka_wuerfel.git
-cd zukka_wuerfel
+                <div class="steps">
+                    <div class="step reveal">
+                        <div>
+                            <h3>Repo holen und installieren</h3>
+                            <p>
+                                Das Skript installiert <code>ffmpeg</code>,
+                                <code>alsa-utils</code>, <code>gpiozero</code> und
+                                <code>lgpio</code>, legt den Benutzer
+                                <code>castcorder</code> an und aktiviert den
+                                systemd-Service.
+                            </p>
+                            <div class="code">
+                                <div class="code-head">
+                                    <span>shell</span
+                                    ><button class="copy-btn" type="button">
+                                        Kopieren
+                                    </button>
+                                </div>
+                                <pre><code>git clone https://github.com/momokli/castcorder.git
+cd castcorder
 sudo ./deploy/install.sh</code></pre>
-          </div>
-        </div>
-      </div>
+                            </div>
+                        </div>
+                    </div>
 
-      <div class="step reveal">
-        <div>
-          <h3>Verbindungsdaten und Passwort eintragen</h3>
-          <p>Server, Port, Mount und DJ-Username stehen in AzuraCast unter <em>Streamers/DJs → Connection Information → Icecast Clients</em>.</p>
-          <div class="code">
-            <div class="code-head"><span>shell</span><button class="copy-btn" type="button">Kopieren</button></div>
-            <pre><code>sudo nano /etc/zukka-wuerfel/config.toml
-sudo nano /etc/zukka-wuerfel/streamer.env</code></pre>
-          </div>
-        </div>
-      </div>
+                    <div class="step reveal">
+                        <div>
+                            <h3>Verbindungsdaten und Passwort eintragen</h3>
+                            <p>
+                                Server, Port, Mount und DJ-Username stehen in AzuraCast
+                                unter
+                                <em
+                                    >Streamers/DJs → Connection Information → Icecast
+                                    Clients</em
+                                >.
+                            </p>
+                            <div class="code">
+                                <div class="code-head">
+                                    <span>shell</span
+                                    ><button class="copy-btn" type="button">
+                                        Kopieren
+                                    </button>
+                                </div>
+                                <pre><code>sudo nano /etc/castcorder/config.toml
+sudo nano /etc/castcorder/streamer.env</code></pre>
+                            </div>
+                        </div>
+                    </div>
 
-      <div class="step reveal">
-        <div>
-          <h3>Selbsttest laufen lassen</h3>
-          <p>Der Check zeigt Konfiguration, Board, ffmpeg-Version, Capture-Geräte, Passwort-Status und ob <code>gpiozero</code> vorhanden ist.</p>
-          <div class="code">
-            <div class="code-head"><span>shell</span><button class="copy-btn" type="button">Kopieren</button></div>
-            <pre><code>sudo bash -c 'set -a; . /etc/zukka-wuerfel/streamer.env; set +a; \
-  cd /opt/zukka-wuerfel; \
-  exec /usr/bin/python3 -m zukka_wuerfel \
-    --config /etc/zukka-wuerfel/config.toml --check'</code></pre>
-          </div>
-        </div>
-      </div>
+                    <div class="step reveal">
+                        <div>
+                            <h3>Selbsttest laufen lassen</h3>
+                            <p>
+                                Der Check zeigt Konfiguration, Board, ffmpeg-Version,
+                                Capture-Geräte, Passwort-Status und ob
+                                <code>gpiozero</code> vorhanden ist.
+                            </p>
+                            <div class="code">
+                                <div class="code-head">
+                                    <span>shell</span
+                                    ><button class="copy-btn" type="button">
+                                        Kopieren
+                                    </button>
+                                </div>
+                                <pre><code>sudo bash -c 'set -a; . /etc/castcorder/streamer.env; set +a; \
+  cd /opt/castcorder; \
+  exec /usr/bin/python3 -m castcorder \
+    --config /etc/castcorder/config.toml --check'</code></pre>
+                            </div>
+                        </div>
+                    </div>
 
-      <div class="step reveal">
-        <div>
-          <h3>Service starten und LIVE drücken</h3>
-          <p>Der Encoder startet erst beim Knopfdruck. Im Journal siehst du Verbindungsaufbau, Retries und Fehler im Klartext.</p>
-          <div class="code">
-            <div class="code-head"><span>shell</span><button class="copy-btn" type="button">Kopieren</button></div>
-            <pre><code>sudo systemctl restart zukka-wuerfel
-journalctl -u zukka-wuerfel -f</code></pre>
-          </div>
-        </div>
-      </div>
-    </div>
+                    <div class="step reveal">
+                        <div>
+                            <h3>Service starten und LIVE drücken</h3>
+                            <p>
+                                Der Encoder startet erst beim Knopfdruck. Im Journal
+                                siehst du Verbindungsaufbau, Retries und Fehler im
+                                Klartext.
+                            </p>
+                            <div class="code">
+                                <div class="code-head">
+                                    <span>shell</span
+                                    ><button class="copy-btn" type="button">
+                                        Kopieren
+                                    </button>
+                                </div>
+                                <pre><code>sudo systemctl restart castcorder
+journalctl -u castcorder -f</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="cards" style="margin-top:1.75rem">
-      <article class="card reveal">
-        <h3>Eingang prüfen</h3>
-        <p>Gerät finden und Pegel messen. Bei laufender Musik sollte der Peak etwa zwischen −20 und −6 dBFS liegen.</p>
-        <div class="code" style="margin-top:0.9rem">
-          <div class="code-head"><span>shell</span><button class="copy-btn" type="button">Kopieren</button></div>
-          <pre><code>arecord -l
+                <div class="cards" style="margin-top: 1.75rem">
+                    <article class="card reveal">
+                        <h3>Eingang prüfen</h3>
+                        <p>
+                            Gerät finden und Pegel messen. Bei laufender Musik sollte der
+                            Peak etwa zwischen −20 und −6 dBFS liegen.
+                        </p>
+                        <div class="code" style="margin-top: 0.9rem">
+                            <div class="code-head">
+                                <span>shell</span
+                                ><button class="copy-btn" type="button">Kopieren</button>
+                            </div>
+                            <pre><code>arecord -l
 ffmpeg -hide_banner -f alsa -i plughw:CARD=Device,DEV=0 \
   -t 5 -af astats -f null -</code></pre>
-        </div>
-      </article>
+                        </div>
+                    </article>
 
-      <article class="card reveal">
-        <h3>Ohne LEDs testen</h3>
-        <p>Auf dem Pi kannst du die Software ohne GPIO starten — Enter simuliert dann den LIVE-Knopf.</p>
-        <div class="code" style="margin-top:0.9rem">
-          <div class="code-head"><span>shell</span><button class="copy-btn" type="button">Kopieren</button></div>
-          <pre><code>sudo bash -c 'set -a; . /etc/zukka-wuerfel/streamer.env; set +a; \
-  cd /opt/zukka-wuerfel; \
-  exec /usr/bin/python3 -m zukka_wuerfel \
-    --config /etc/zukka-wuerfel/config.toml --no-gpio'</code></pre>
-        </div>
-      </article>
+                    <article class="card reveal">
+                        <h3>Ohne LEDs testen</h3>
+                        <p>
+                            Auf dem Pi kannst du die Software ohne GPIO starten — Enter
+                            simuliert dann den LIVE-Knopf.
+                        </p>
+                        <div class="code" style="margin-top: 0.9rem">
+                            <div class="code-head">
+                                <span>shell</span
+                                ><button class="copy-btn" type="button">Kopieren</button>
+                            </div>
+                            <pre><code>sudo bash -c 'set -a; . /etc/castcorder/streamer.env; set +a; \
+  cd /opt/castcorder; \
+  exec /usr/bin/python3 -m castcorder \
+    --config /etc/castcorder/config.toml --no-gpio'</code></pre>
+                        </div>
+                    </article>
 
-      <article class="card reveal">
-        <h3>Konfiguration</h3>
-        <p>Alle Schlüssel für Eingang, Stream, Encoder, LEDs, GPIO und Retry-Verhalten — strikt validiert, mit klaren Fehlermeldungen statt stiller Defaults.</p>
-        <p style="margin-top:0.9rem">
-          <a href="https://github.com/momokli/zukka_wuerfel/blob/main/config.example.toml">config.example.toml ansehen →</a>
-        </p>
-      </article>
-    </div>
-  </section>
+                    <article class="card reveal">
+                        <h3>Konfiguration</h3>
+                        <p>
+                            Alle Schlüssel für Eingang, Stream, Encoder, LEDs, GPIO und
+                            Retry-Verhalten — strikt validiert, mit klaren Fehlermeldungen
+                            statt stiller Defaults.
+                        </p>
+                        <p style="margin-top: 0.9rem">
+                            <a
+                                href="https://github.com/momokli/castcorder/blob/main/config.example.toml"
+                                >config.example.toml ansehen →</a
+                            >
+                        </p>
+                    </article>
+                </div>
+            </section>
 
-  <!-- ================= casing ================= -->
-  <section class="wrap" id="gehaeuse">
-    <div class="section-head reveal">
-      <h2>Gehäuse-Konzepte</h2>
-      <p>
-        Acht Renderings als Ausgangspunkt: Nussbaum, Birke, schwarzes Walnuss-Finish
-        oder 3D-Druck. Der Deckel trägt die sieben Pips, die Front den LIVE-Taster,
-        die Rückseite den Line-In.
-      </p>
-      <p>
-        Die drei E-Ink-Varianten übertragen das handgezeichnete Kassettenmotiv von
-        <a href="https://radio.zukkafabrik.de">radio.zukkafabrik.de</a> auf das
-        Gehäuse: Track, Artist und Hörerzahl stehen auf einem stromsparenden
-        E-Ink-Display, den PLAY-Button ersetzt der EAO-LIVE-Taster.
-      </p>
-    </div>
+            <!-- ================= casing ================= -->
+            <section class="wrap" id="gehaeuse">
+                <div class="section-head reveal">
+                    <h2>Das Castcorder-Gehäuse</h2>
+                    <p>
+                        Ein liegendes Tapedeck für den Tisch: flaches Holzgehäuse mit
+                        Cassettenfenster, siebensegmentiger VU-Leiter und einem roten
+                        LIVE-Taster. Die Handskizze zeigt die Aufteilung —
+                        Cassettenfenster oben, VU-Leiter darunter, LIVE links, „ON AIR“
+                        rechts.
+                    </p>
+                    <p>
+                        Der Pi sitzt hinter der Frontplatte, das USB-Audio-Interface
+                        findet im flachen Gehäuse Platz. Line-In und Strom gehen hinten
+                        raus, damit das Deck auf dem Tisch liegen bleibt.
+                    </p>
+                </div>
 
-    <div class="gallery">
-      <figure class="reveal">
-        <button type="button" data-lightbox="Nussbaum · EAO-Taster · RCA-Eingang">
-          <img src="casing/concepts/web/01-walnut-eao.jpg" width="1184" height="864" loading="lazy"
-               alt="Nussbaum-Würfel mit schwarzer Frontplatte, rundem beleuchtetem LIVE-Taster, Display und RCA-Eingängen L/R.">
-        </button>
-        <figcaption><b>Walnut EAO</b>Nussbaum, EAO-Taster, RCA L/R</figcaption>
-      </figure>
+                <figure class="concept-sketch reveal">
+                    <img
+                        src="casing/concepts/00-castcorder-sketch.png"
+                        width="472"
+                        height="516"
+                        loading="lazy"
+                        alt="Handskizze des Castcorder: liegendes Tapedeck mit Cassettenfenster, VU-Meter und rotem LIVE-Taster."
+                    />
+                    <figcaption>
+                        <b>Castcorder-Skizze</b>Liegendes Deck, Cassettenfenster,
+                        VU-Leiter, LIVE-Taster
+                    </figcaption>
+                </figure>
 
-      <figure class="reveal">
-        <button type="button" data-lightbox="Birke · EAO-Taster · RCA-Eingang">
-          <img src="casing/concepts/web/02-birch-arcade60.jpg" width="1184" height="864" loading="lazy"
-               alt="Heller Birkenholz-Würfel mit rundem beleuchtetem Taster, Display und RCA-Eingängen.">
-        </button>
-        <figcaption><b>Birch EAO</b>Helles Birkenholz, kompakte Front</figcaption>
-      </figure>
+                <p class="subhead" style="margin-top: 2.2rem">Castcorder-Konzepte</p>
+                <p
+                    style="
+                        margin: 0.4rem 0 1.2rem;
+                        font-size: 0.9rem;
+                        color: var(--muted);
+                        max-width: 70ch;
+                    "
+                >
+                    Acht Renderings für das Tapedeck: Nussbaum, Birke, schwarzes Finish
+                    und 3D-Druck, jeweils mit Cassettenfenster, VU-Leiter und
+                    LIVE-Taster. Die letzten drei zeigen die E-Ink-Kassette als
+                    Hauptmotiv.
+                </p>
 
-      <figure class="reveal">
-        <button type="button" data-lightbox="Schwarzes Walnuss-Finish · Arcade-Taster">
-          <img src="casing/concepts/web/03-black-walnut-arcade100.jpg" width="1184" height="864" loading="lazy"
-               alt="Dunkler Würfel mit rot leuchtendem Arcade-Taster, Display und RCA-Eingängen.">
-        </button>
-        <figcaption><b>Black Walnut Arcade</b>Dunkles Finish, großer roter Taster</figcaption>
-      </figure>
+                <div class="gallery">
+                    <figure class="reveal">
+                        <button type="button" data-lightbox="Castcorder · Nussbaum">
+                            <img
+                                src="casing/concepts/web/10-castcorder-walnut.jpg"
+                                width="1184"
+                                height="864"
+                                loading="lazy"
+                                alt="Castcorder aus Nussbaum: liegendes Tapedeck mit Cassettenfenster, siebensegmentiger VU-Leiter und rotem LIVE-Taster."
+                            />
+                        </button>
+                        <figcaption>
+                            <b>Walnut</b>Nussbaum, Cassettenfenster, VU-Leiter
+                        </figcaption>
+                    </figure>
 
-      <figure class="reveal">
-        <button type="button" data-lightbox="3D-Druck-Prototyp · Kupferecken">
-          <img src="casing/concepts/web/04-printed-eao-prototype.jpg" width="1184" height="864" loading="lazy"
-               alt="3D-gedruckter Prototyp in Schwarz mit Kupferecken, grün beleuchtetem Taster und Display.">
-        </button>
-        <figcaption><b>Printed Prototype</b>3D-Druck, Kupferecken, grüner Taster</figcaption>
-      </figure>
+                    <figure class="reveal">
+                        <button type="button" data-lightbox="Castcorder · Birke">
+                            <img
+                                src="casing/concepts/web/11-castcorder-birch.jpg"
+                                width="1184"
+                                height="864"
+                                loading="lazy"
+                                alt="Castcorder aus hellem Birkenholz: liegendes Tapedeck mit Cassettenfenster, VU-Leiter und LIVE-Taster."
+                            />
+                        </button>
+                        <figcaption>
+                            <b>Birch</b>Helles Birkenholz, klare Front
+                        </figcaption>
+                    </figure>
 
-      <figure class="reveal">
-        <button type="button" data-lightbox="Nussbaum · überarbeitete Front">
-          <img src="casing/concepts/web/05-walnut-eao-corrected.jpg" width="1184" height="864" loading="lazy"
-               alt="Überarbeitetes Nussbaum-Rendering mit schwarzer Front, beleuchtetem LIVE-Taster und Display.">
-        </button>
-        <figcaption><b>Walnut EAO (corrected)</b>Überarbeitete Front, ruhigere Proportionen</figcaption>
-      </figure>
+                    <figure class="reveal">
+                        <button type="button" data-lightbox="Castcorder · schwarzes Finish">
+                            <img
+                                src="casing/concepts/web/12-castcorder-black.jpg"
+                                width="1184"
+                                height="864"
+                                loading="lazy"
+                                alt="Castcorder in schwarzem Finish: liegendes Tapedeck mit Cassettenfenster, VU-Leiter und rot leuchtendem LIVE-Taster."
+                            />
+                        </button>
+                        <figcaption>
+                            <b>Black</b>Schwarzes Finish, roter LIVE-Taster
+                        </figcaption>
+                    </figure>
 
-      <figure class="reveal">
-        <button type="button" data-lightbox="E-Ink-Kassette · ein 4,2-Zoll-Display">
-          <img src="casing/concepts/web/06-cassette-eink-single.jpg" width="1184" height="864" loading="lazy"
-               alt="Nussbaum-Würfel mit einem großen E-Ink-Display, das eine handgezeichnete Kassette mit dem Titel MIDNIGHT TAPE, dem Artist VIDLINGS &amp; TAPEHEADS, einem roten LIVE-Badge und 7 LISTENERS zeigt; darunter ein beleuchteter LIVE-Taster.">
-        </button>
-        <figcaption><b>Cassette E-Ink</b>Ein 4,2-Zoll-Display, Kassette als Hauptmotiv</figcaption>
-      </figure>
+                    <figure class="reveal">
+                        <button type="button" data-lightbox="Castcorder · 3D-Druck">
+                            <img
+                                src="casing/concepts/web/13-castcorder-printed.jpg"
+                                width="1184"
+                                height="864"
+                                loading="lazy"
+                                alt="Castcorder als 3D-gedruckter Prototyp: liegendes Tapedeck mit Cassettenfenster, VU-Leiter und LIVE-Taster."
+                            />
+                        </button>
+                        <figcaption>
+                            <b>Printed</b>3D-Druck, kompakte Front
+                        </figcaption>
+                    </figure>
 
-      <figure class="reveal">
-        <button type="button" data-lightbox="E-Ink-Kassette · zwei Displays">
-          <img src="casing/concepts/web/07-cassette-eink-dual.jpg" width="1184" height="864" loading="lazy"
-               alt="Nussbaum-Würfel mit zwei E-Ink-Displays: links die Kassette mit MIDNIGHT TAPE, rechts ein schmaler Streifen mit rotem LIVE-Badge, 7 LISTENERS, ON AIR 00:42 und 192 kbps.">
-        </button>
-        <figcaption><b>Cassette E-Ink Dual</b>Kassette links, Status-Streifen rechts</figcaption>
-      </figure>
+                    <figure class="reveal">
+                        <button type="button" data-lightbox="Castcorder · Nussbaum, überarbeitet">
+                            <img
+                                src="casing/concepts/web/14-castcorder-walnut-corrected.jpg"
+                                width="1184"
+                                height="864"
+                                loading="lazy"
+                                alt="Castcorder aus Nussbaum mit überarbeiteter Front: liegendes Tapedeck mit Cassettenfenster, VU-Leiter und LIVE-Taster."
+                            />
+                        </button>
+                        <figcaption>
+                            <b>Walnut (corrected)</b>Überarbeitete Front, ruhigere
+                            Proportionen
+                        </figcaption>
+                    </figure>
 
-      <figure class="reveal">
-        <button type="button" data-lightbox="E-Ink-Kassette · 7-Farb-Display">
-          <img src="casing/concepts/web/08-cassette-eink-color.jpg" width="1184" height="864" loading="lazy"
-               alt="Nussbaum-Würfel mit einem großen Farb-E-Ink-Display, das die Kassette in gedecktem Teal und Weiß zeigt, mit rotem LIVE-Badge, MIDNIGHT TAPE, VIDLINGS &amp; TAPEHEADS und 7 LISTENERS.">
-        </button>
-        <figcaption><b>Cassette E-Ink Color</b>7-Farb-E-Ink, Teal wie im Web-Player</figcaption>
-      </figure>
-    </div>
+                    <figure class="reveal">
+                        <button type="button" data-lightbox="Castcorder · E-Ink-Kassette">
+                            <img
+                                src="casing/concepts/web/15-castcorder-eink-single.jpg"
+                                width="1184"
+                                height="884"
+                                loading="lazy"
+                                alt="Castcorder mit einem großen E-Ink-Display, das eine handgezeichnete Kassette mit dem Titel MIDNIGHT TAPE, dem Artist VIDLINGS &amp; TAPEHEADS, einem roten LIVE-Badge und 7 LISTENERS zeigt; darunter die VU-Leiter und ein LIVE-Taster."
+                            />
+                        </button>
+                        <figcaption>
+                            <b>E-Ink Single</b>Ein Display, Kassette als Hauptmotiv
+                        </figcaption>
+                    </figure>
 
-    <p style="margin:1.1rem 0 0;font-size:0.85rem;color:var(--muted)">
-      Hinweis: Die Renderings zeigen teilweise ein LC-Display. Die aktuelle Software
-      steuert nur die sieben Pips und den LIVE-Taster — die E-Ink-Kassette ist ein
-      Entwurf, noch nicht implementiert.
-    </p>
-  </section>
+                    <figure class="reveal">
+                        <button type="button" data-lightbox="Castcorder · zwei E-Ink-Displays">
+                            <img
+                                src="casing/concepts/web/16-castcorder-eink-dual.jpg"
+                                width="1184"
+                                height="884"
+                                loading="lazy"
+                                alt="Castcorder mit zwei E-Ink-Displays: links die Kassette mit MIDNIGHT TAPE, rechts ein schmaler Streifen mit rotem LIVE-Badge, 7 LISTENERS, ON AIR 00:42 und 192 kbps."
+                            />
+                        </button>
+                        <figcaption>
+                            <b>E-Ink Dual</b>Kassette links, Status-Streifen rechts
+                        </figcaption>
+                    </figure>
 
-</main>
+                    <figure class="reveal">
+                        <button type="button" data-lightbox="Castcorder · Farb-E-Ink">
+                            <img
+                                src="casing/concepts/web/17-castcorder-eink-color.jpg"
+                                width="1184"
+                                height="884"
+                                loading="lazy"
+                                alt="Castcorder mit einem großen Farb-E-Ink-Display, das die Kassette in gedecktem Teal und Weiß zeigt, mit rotem LIVE-Badge, MIDNIGHT TAPE, VIDLINGS &amp; TAPEHEADS und 7 LISTENERS."
+                            />
+                        </button>
+                        <figcaption>
+                            <b>E-Ink Color</b>Farb-E-Ink, Teal wie im Web-Player
+                        </figcaption>
+                    </figure>
+                </div>
+            </section>
+        </main>
 
-<footer class="site-footer">
-  <div class="wrap">
-    <div class="footer-grid">
-      <div>
-        <a class="brand" href="#top">
-          <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
-            <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="8" fill="#1c1613" stroke="rgba(255,176,74,0.35)" stroke-width="1.5"/>
-            <g fill="#ffb04a">
-              <circle cx="10" cy="10" r="2.1"/><circle cx="22" cy="10" r="2.1"/>
-              <circle cx="10" cy="16" r="2.1"/><circle cx="16" cy="16" r="2.1"/><circle cx="22" cy="16" r="2.1"/>
-              <circle cx="10" cy="22" r="2.1"/><circle cx="22" cy="22" r="2.1"/>
-            </g>
-          </svg>
-          <span>radio zukka<small>Würfel</small></span>
-        </a>
-        <p style="margin:0.9rem 0 0;max-width:34ch">
-          Live-DJ-Encoder für <a href="https://radio.zukkafabrik.de">radio.zukkafabrik.de</a>.
-        </p>
-      </div>
+        <footer class="site-footer">
+            <div class="wrap">
+                <div class="footer-grid">
+                    <div>
+                        <a class="brand" href="#top">
+                            <svg
+                                width="26"
+                                height="26"
+                                viewBox="0 0 32 32"
+                                aria-hidden="true"
+                            >
+                                <rect
+                                    x="0.75"
+                                    y="0.75"
+                                    width="30.5"
+                                    height="30.5"
+                                    rx="8"
+                                    fill="#1c1613"
+                                    stroke="rgba(255,176,74,0.35)"
+                                    stroke-width="1.5"
+                                />
+                                <rect
+                                    x="6"
+                                    y="10"
+                                    width="20"
+                                    height="12"
+                                    rx="2"
+                                    fill="none"
+                                    stroke="#ffb04a"
+                                    stroke-width="1.6"
+                                />
+                                <circle cx="12" cy="16" r="2.4" fill="#ffb04a" />
+                                <circle cx="20" cy="16" r="2.4" fill="#ffb04a" />
+                                <path
+                                    d="M9 22h14"
+                                    stroke="#ffb04a"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                />
+                            </svg>
+                            <span>Castcorder</span>
+                        </a>
+                        <p style="margin: 0.9rem 0 0; max-width: 34ch">
+                            Live-DJ-Encoder für
+                            <a href="https://radio.zukkafabrik.de">radio.zukkafabrik.de</a
+                            >.
+                        </p>
+                    </div>
 
-      <nav class="footer-links" aria-label="Projektlinks">
-        <a href="https://github.com/momokli/zukka_wuerfel">Repository</a>
-        <a href="https://github.com/momokli/zukka_wuerfel/blob/main/README.md">README</a>
-        <a href="https://github.com/momokli/zukka_wuerfel/blob/main/docs/hardware.md">Hardware-Doku</a>
-        <a href="https://github.com/momokli/zukka_wuerfel/blob/main/config.example.toml">Beispielkonfiguration</a>
-        <a href="https://radio.zukkafabrik.de">Stream</a>
-      </nav>
-    </div>
+                    <nav class="footer-links" aria-label="Projektlinks">
+                        <a href="https://github.com/momokli/castcorder">Repository</a>
+                        <a
+                            href="https://github.com/momokli/castcorder/blob/main/README.md"
+                            >README</a
+                        >
+                        <a
+                            href="https://github.com/momokli/castcorder/blob/main/docs/hardware.md"
+                            >Hardware-Doku</a
+                        >
+                        <a
+                            href="https://github.com/momokli/castcorder/blob/main/config.example.toml"
+                            >Beispielkonfiguration</a
+                        >
+                        <a href="https://radio.zukkafabrik.de">Stream</a>
+                    </nav>
+                </div>
 
-    <p class="footer-note">
-      Kein Passwort im Repo. Der Würfel verbindet sich ausschließlich mit dem
-      DJ-/Streamer-Account, nie mit dem Admin-Account.
-    </p>
-  </div>
-</footer>
+                <p class="footer-note">
+                    Kein Passwort im Repo. Das Castcorder verbindet sich ausschließlich
+                    mit dem DJ-/Streamer-Account, nie mit dem Admin-Account.
+                </p>
+            </div>
+        </footer>
 
-<dialog class="lightbox" id="lightbox">
-  <img id="lightbox-img" alt="">
-  <p id="lightbox-caption"></p>
-</dialog>
+        <dialog class="lightbox" id="lightbox">
+            <img id="lightbox-img" alt="" />
+            <p id="lightbox-caption"></p>
+        </dialog>
 
-<script src="app.js"></script>
-</body>
+        <script src="app.js"></script>
+    </body>
 </html>

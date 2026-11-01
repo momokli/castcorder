@@ -8,16 +8,16 @@ import time
 import unittest
 from pathlib import Path
 
-from zukka_wuerfel.config import EncoderConfig, InputConfig, StreamConfig
-from zukka_wuerfel.encoder import (
+from castcorder.config import EncoderConfig, InputConfig, StreamConfig
+from castcorder.encoder import (
     BroadcastEncoder,
     EncoderFailure,
     IcecastSource,
     build_ffmpeg_command,
     parse_level,
 )
-from zukka_wuerfel.events import AudioLevel, EncoderConnected
-from zukka_wuerfel.events import EncoderError as EncoderErrorEvent
+from castcorder.events import AudioLevel, EncoderConnected
+from castcorder.events import EncoderError as EncoderErrorEvent
 
 FAKE_FFMPEG = """#!/usr/bin/env python3
 import signal
